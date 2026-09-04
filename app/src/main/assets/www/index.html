@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>SALARY - Powered by SHIV COMPUTER</title>
+  <meta name="description" content="Professional School Salary Management System" />
+  <meta name="theme-color" content="#4f46e5" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" type="image/png" href="icon.png" />
+  
+  <!-- CSS Stylesheets -->
+  <link rel="stylesheet" href="css/icons.css" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+  <link rel="stylesheet" href="css/print.css" media="print" />
+</head>
+<body>
+
+  <!-- Fullscreen App Lock Overlay -->
+  <div id="appLockScreen" class="lock-screen-overlay" style="display: none;">
+    <div class="lock-box">
+      <div class="brand-icon-logo mx-auto mb-3" style="width: 54px; height: 54px; font-size: 1.6rem;">₹</div>
+      <h2 class="font-bold text-xl">SALARY</h2>
+      <p class="text-xs text-muted mb-4 font-semibold">POWERED BY SHIV COMPUTER</p>
+      
+      <div class="alert alert-neutral mb-3 text-xs">
+        <i class="icon-shield"></i> Enter administrator password to unlock (Default: 9919)
+      </div>
+
+      <form onsubmit="event.preventDefault(); App.handleUnlock();">
+        <div class="form-group text-left">
+          <input type="password" id="lockPasswordInput" class="form-control text-center text-lg font-bold" placeholder="••••" maxlength="16" autofocus />
+        </div>
+        <div id="lockErrorMsg" class="text-xs text-danger mb-3 font-semibold"></div>
+        <button type="submit" class="btn btn-primary w-100" style="width: 100%;">
+          <i class="icon-unlock"></i> Unlock Dashboard
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Reusable App Shell Container -->
+  <div class="app-container">
+
+    <!-- Mobile Sidebar Backdrop -->
+    <div class="sidebar-backdrop" id="sidebarBackdrop" onclick="document.getElementById('appSidebar').classList.remove('mobile-open'); this.classList.remove('active');"></div>
+
+    <!-- Desktop Sidebar Navigation -->
+    <aside class="sidebar" id="appSidebar">
+      <div class="sidebar-header">
+        <a href="javascript:void(0)" class="app-brand" onclick="App.navigateTo('dashboard')">
+          <div class="brand-icon-logo">₹</div>
+          <div class="brand-title-group">
+            <h1>SALARY</h1>
+            <div class="brand-sub">SHIV COMPUTER</div>
+          </div>
+        </a>
+      </div>
+
+      <nav class="sidebar-nav">
+        <a href="javascript:void(0)" class="nav-link active" data-route="dashboard" onclick="App.navigateTo('dashboard')">
+          <i class="icon-layout"></i> Dashboard
+        </a>
+        <a href="javascript:void(0)" class="nav-link" data-route="schools" onclick="App.navigateTo('schools')">
+          <i class="icon-home"></i> Schools
+        </a>
+        <a href="javascript:void(0)" class="nav-link" data-route="employees" onclick="App.navigateTo('employees')">
+          <i class="icon-users"></i> Employees
+        </a>
+        <a href="javascript:void(0)" class="nav-link" data-route="attendance" onclick="App.navigateTo('attendance')">
+          <i class="icon-calendar"></i> Attendance
+        </a>
+        <a href="javascript:void(0)" class="nav-link" data-route="salary" onclick="App.navigateTo('salary')">
+          <i class="icon-credit-card"></i> Salary Payroll
+        </a>
+        <a href="javascript:void(0)" class="nav-link" data-route="reports" onclick="App.navigateTo('reports')">
+          <i class="icon-bar-chart-2"></i> Reports
+        </a>
+        <a href="javascript:void(0)" class="nav-link" data-route="settings" onclick="App.navigateTo('settings')">
+          <i class="icon-settings"></i> Settings
+        </a>
+        <a href="javascript:void(0)" class="nav-link" data-route="audit" onclick="App.navigateTo('audit')">
+          <i class="icon-activity"></i> Audit Logs
+        </a>
+        <a href="javascript:void(0)" class="nav-link" data-route="about" onclick="App.navigateTo('about')">
+          <i class="icon-info"></i> About
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="brand-badge-footer">
+          <div>SALARY v1.0</div>
+          <div class="text-xs text-muted">Powered by SHIV COMPUTER</div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Wrapper -->
+    <div class="main-wrapper">
+
+      <!-- Sticky Top Header -->
+      <header class="top-header">
+        <div class="header-left">
+          <button class="icon-btn d-md-none" onclick="document.getElementById('appSidebar').classList.toggle('mobile-open'); document.getElementById('sidebarBackdrop').classList.toggle('active');">
+            <i class="icon-menu"></i>
+          </button>
+
+          <!-- Active School Pill Selector -->
+          <div class="school-selector-pill">
+            <i class="icon-school text-primary"></i>
+            <select id="headerSchoolSelect" class="school-select-dropdown" title="Change Active School">
+              <option value="">Select School...</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="header-right">
+          <!-- High Density SECURE Status Pill -->
+          <div class="secure-badge" title="Local Offline Vault Protected">
+            <span class="secure-pulse-dot"></span>
+            <span class="secure-text">SECURE</span>
+          </div>
+
+          <div class="header-search-bar">
+            <i class="icon-search"></i>
+            <input type="text" id="globalSearchInput" placeholder="Search staff, ID, mobile..." />
+          </div>
+
+          <button class="icon-btn" onclick="Backup.createFullBackup()" title="Backup Database">
+            <i class="icon-download-cloud"></i>
+          </button>
+
+          <button class="icon-btn" onclick="document.getElementById('backupFileInput').click()" title="Restore Database">
+            <i class="icon-upload-cloud"></i>
+          </button>
+          <input type="file" id="backupFileInput" accept=".json" style="display: none;" />
+
+          <button class="icon-btn" onclick="App.toggleTheme()" title="Toggle Theme">
+            <i id="themeToggleIcon" class="icon-moon"></i>
+          </button>
+
+          <button class="icon-btn" onclick="App.lockApp()" title="Lock Screen">
+            <i class="icon-lock"></i>
+          </button>
+        </div>
+      </header>
+
+      <!-- Main Viewport Panes -->
+      <main class="content-viewport">
+
+        <!-- 1. DASHBOARD VIEW -->
+        <section id="view-dashboard" class="view-panel active">
+          <!-- Active School Banner & Quick Action Buttons -->
+          <div class="card mb-3 bg-gradient-primary">
+            <div class="flex-between flex-wrap gap-2">
+              <div>
+                <span class="badge badge-accent mb-1">Active Organization</span>
+                <h2 id="dashSchoolName" class="font-bold text-xl text-primary">Loading School...</h2>
+                <div id="dashSchoolMeta" class="text-xs text-muted">Select a school to view data</div>
+              </div>
+              <div class="flex-align gap-2 flex-wrap">
+                <button class="btn btn-sm btn-primary" onclick="Attendance.markAllMonthPresent()"><i class="icon-check"></i> Fill Month Present</button>
+                <button class="btn btn-sm btn-success" onclick="Salary.generateMonthlySalaries()"><i class="icon-refresh-cw"></i> Run Payroll</button>
+                <button class="btn btn-sm btn-secondary" onclick="Employees.openModal()"><i class="icon-user-plus"></i> Add Staff</button>
+                <button class="btn btn-sm btn-outline" onclick="Schools.openModal()"><i class="icon-plus"></i> New School</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Salary Rule Reminder Callout (High Density Design Theme) -->
+          <div class="salary-rule-reminder-card mb-3">
+            <div class="reminder-icon-box">
+              <i class="icon-info text-warning"></i>
+            </div>
+            <div style="flex: 1;">
+              <div class="reminder-label">Salary Rule Reminder</div>
+              <div class="reminder-text">Fixed 30-day basis calculation. First absent is paid. Sundays always paid.</div>
+            </div>
+          </div>
+
+          <!-- Top Statistics KPI Grid -->
+          <div class="stats-grid mb-3">
+            <div class="stat-card">
+              <div class="stat-icon bg-primary-light"><i class="icon-home text-primary"></i></div>
+              <div class="stat-content">
+                <span class="stat-label">Total Schools</span>
+                <h3 class="stat-value text-primary" id="dashTotalSchools">0</h3>
+                <span class="stat-subtext">Managed Institutions</span>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon bg-info-light"><i class="icon-users text-info"></i></div>
+              <div class="stat-content">
+                <span class="stat-label">Staff Members</span>
+                <h3 class="stat-value text-info" id="dashTotalEmployees">0</h3>
+                <span class="stat-subtext"><span id="dashActiveEmployees">0</span> Active in School</span>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon bg-success-light"><i class="icon-check-circle text-success"></i></div>
+              <div class="stat-content">
+                <span class="stat-label">Present Today</span>
+                <h3 class="stat-value text-success" id="dashPresentToday">0</h3>
+                <span class="stat-subtext"><span id="dashAbsentToday">0</span> Absent • <span id="dashLeaveToday">0</span> Leave</span>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon bg-warning-light"><i class="icon-dollar-sign text-warning"></i></div>
+              <div class="stat-content">
+                <span class="stat-label">Monthly Payroll</span>
+                <h3 class="stat-value text-warning" id="dashMonthSalary">₹0</h3>
+                <span class="stat-subtext">Paid: <strong id="dashPaidSalary">₹0</strong></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Analytics Charts Row -->
+          <div class="cards-grid mb-3">
+            <!-- Attendance Donut Chart -->
+            <div class="card">
+              <div class="card-header flex-between">
+                <h4 class="card-title text-sm"><i class="icon-pie-chart"></i> Today's Attendance</h4>
+                <button class="btn btn-xs btn-outline" onclick="App.navigateTo('attendance')">Mark</button>
+              </div>
+              <div class="flex-align justify-center py-2" style="justify-content: center;">
+                <canvas id="attendanceDonutChart" width="240" height="240"></canvas>
+              </div>
+              <div class="attendance-legend flex-between text-xs pt-2 border-top">
+                <span><span class="badge badge-success">P</span> Present</span>
+                <span><span class="badge badge-danger">A</span> Absent</span>
+                <span><span class="badge badge-info">L</span> Leave</span>
+                <span><span class="badge badge-warning">H</span> Half</span>
+              </div>
+            </div>
+
+            <!-- Salary Overview Donut Chart -->
+            <div class="card">
+              <div class="card-header flex-between">
+                <h4 class="card-title text-sm"><i class="icon-activity"></i> Payroll Status</h4>
+                <button class="btn btn-xs btn-outline" onclick="App.navigateTo('salary')">Manage</button>
+              </div>
+              <div class="flex-align justify-center py-2" style="justify-content: center;">
+                <canvas id="salaryOverviewChart" width="240" height="240"></canvas>
+              </div>
+              <div class="flex-between text-xs pt-2 border-top">
+                <span>Pending: <strong id="dashPendingSalary" class="text-warning">₹0</strong></span>
+                <span>Deductions: <strong id="dashTotalDeductions" class="text-danger">₹0</strong></span>
+              </div>
+            </div>
+
+            <!-- 6-Month Trend Chart -->
+            <div class="card">
+              <div class="card-header flex-between">
+                <h4 class="card-title text-sm"><i class="icon-trending-up"></i> 6-Month Salary Trend</h4>
+                <span class="text-xs text-muted">Monthly Net</span>
+              </div>
+              <div class="flex-align justify-center" style="justify-content: center;">
+                <canvas id="salaryTrendChart" width="500" height="180" style="max-width: 100%; height: auto;"></canvas>
+              </div>
+            </div>
+
+            <!-- Department Distribution -->
+            <div class="card">
+              <div class="card-header">
+                <h4 class="card-title text-sm"><i class="icon-layers"></i> Staff by Department</h4>
+              </div>
+              <div id="deptDistributionContainer" class="py-2">
+                <!-- Injected via JS -->
+              </div>
+            </div>
+
+            <!-- Recent Attendance Today (High Density Card) -->
+            <div class="card">
+              <div class="card-header flex-between">
+                <h4 class="card-title text-sm"><i class="icon-clock"></i> Recent Attendance (Today)</h4>
+                <button class="btn btn-xs btn-outline" onclick="App.navigateTo('attendance')">Open Sheet</button>
+              </div>
+              <div id="dashTodayAttendanceList" style="display: flex; flex-direction: column; gap: 0.5rem; max-height: 240px; overflow-y: auto; padding: 0.25rem 0;">
+                <!-- Dynamically populated via app.js -->
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 2. SCHOOLS VIEW -->
+        <section id="view-schools" class="view-panel">
+          <div class="card mb-3">
+            <div class="flex-between flex-wrap gap-2">
+              <div>
+                <h2 class="font-bold text-lg">School & Institution Management</h2>
+                <p class="text-sm text-muted">Manage independent branches, campuses, logos, and authorities.</p>
+              </div>
+              <button class="btn btn-primary" onclick="Schools.openModal()"><i class="icon-plus"></i> Add New School</button>
+            </div>
+          </div>
+
+          <div id="schoolsListContainer">
+            <!-- Dynamic School Cards Grid -->
+          </div>
+        </section>
+
+        <!-- 3. EMPLOYEES VIEW -->
+        <section id="view-employees" class="view-panel">
+          <div class="card mb-3">
+            <div class="flex-between flex-wrap gap-2">
+              <div>
+                <h2 class="font-bold text-lg">Employee & Teacher Profiles</h2>
+                <p class="text-sm text-muted">Active School Staff Directory (<span id="employeeCountBadge">0</span>)</p>
+              </div>
+              <button class="btn btn-primary" onclick="Employees.openModal()"><i class="icon-user-plus"></i> Add New Employee</button>
+            </div>
+
+            <!-- Filters & Sorting Bar -->
+            <div class="flex-between flex-wrap gap-2 mt-3 pt-3 border-top">
+              <div class="flex-align gap-2 flex-wrap">
+                <input type="text" id="empSearchInput" class="form-control form-control-sm" placeholder="Search name, ID, phone..." style="width: 200px;" />
+                <select id="empFilterDept" class="form-control form-control-sm" style="width: auto;">
+                  <option value="all">All Departments</option>
+                </select>
+                <select id="empFilterDesig" class="form-control form-control-sm" style="width: auto;">
+                  <option value="all">All Designations</option>
+                </select>
+                <select id="empFilterStatus" class="form-control form-control-sm" style="width: auto;">
+                  <option value="all">All Statuses</option>
+                  <option value="Active">Active Only</option>
+                  <option value="Inactive">Inactive Only</option>
+                </select>
+              </div>
+
+              <div class="flex-align gap-2">
+                <span class="text-xs font-semibold text-muted">Sort:</span>
+                <select id="empSortSelect" class="form-control form-control-sm" style="width: auto;">
+                  <option value="name_asc">Name (A-Z)</option>
+                  <option value="name_desc">Name (Z-A)</option>
+                  <option value="salary_desc">Salary (Highest)</option>
+                  <option value="salary_asc">Salary (Lowest)</option>
+                  <option value="id_asc">Employee ID</option>
+                  <option value="date_desc">Joining Date (Newest)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div id="employeeListContainer">
+            <!-- Dynamic Employees Table / Cards -->
+          </div>
+        </section>
+
+        <!-- 4. ATTENDANCE VIEW -->
+        <section id="view-attendance" class="view-panel">
+          <div class="card mb-3">
+            <div class="flex-between flex-wrap gap-2">
+              <div>
+                <h2 class="font-bold text-lg">Staff Attendance Register</h2>
+                <p class="text-sm text-muted">P (Present), A (Absent), H (Half Day), L (Leave), Sunday (Paid Holiday)</p>
+              </div>
+
+              <div class="flex-align gap-2">
+                <select id="attMonthSelect" class="form-control form-control-sm" style="width: auto;"></select>
+                <select id="attYearSelect" class="form-control form-control-sm" style="width: auto;"></select>
+              </div>
+            </div>
+          </div>
+
+          <div id="attendanceContainer">
+            <!-- Dynamic Attendance Matrix -->
+          </div>
+        </section>
+
+        <!-- 5. SALARY VIEW -->
+        <section id="view-salary" class="view-panel">
+          <div class="card mb-3">
+            <div class="flex-between flex-wrap gap-2">
+              <div>
+                <h2 class="font-bold text-lg">Salary Calculation & Payroll Processing</h2>
+                <p class="text-sm text-muted">Fixed 30-Day Basis • Paid Sundays • 1st Absent/Leave Paid • Net Salary Disbursal</p>
+              </div>
+
+              <div class="flex-align gap-2">
+                <select id="salaryMonthSelect" class="form-control form-control-sm" style="width: auto;"></select>
+                <select id="salaryYearSelect" class="form-control form-control-sm" style="width: auto;"></select>
+              </div>
+            </div>
+          </div>
+
+          <div id="salaryContainer">
+            <!-- Dynamic Salary Table -->
+          </div>
+        </section>
+
+        <!-- 6. REPORTS VIEW -->
+        <section id="view-reports" class="view-panel">
+          <div class="card mb-3">
+            <div class="flex-between flex-wrap gap-2">
+              <div>
+                <h2 class="font-bold text-lg">Financial & Attendance Reports</h2>
+                <p class="text-sm text-muted">Export CSV, Download JSON, or Print official statements.</p>
+              </div>
+
+              <div class="flex-align gap-2 flex-wrap">
+                <button class="btn btn-sm btn-outline" onclick="Reports.printReport()"><i class="icon-printer"></i> Print</button>
+                <button class="btn btn-sm btn-secondary" onclick="Reports.exportCsv()"><i class="icon-file"></i> CSV</button>
+                <button class="btn btn-sm btn-primary" onclick="Reports.exportJson()"><i class="icon-code"></i> JSON</button>
+              </div>
+            </div>
+
+            <div class="flex-align gap-2 flex-wrap mt-3 pt-3 border-top">
+              <select id="reportTypeSelect" class="form-control form-control-sm" style="width: auto;">
+                <option value="monthly_salary">Monthly Payroll Summary Report</option>
+                <option value="pending_salary">Pending Salary Disbursement Report</option>
+                <option value="paid_salary">Paid Salary Statement Report</option>
+                <option value="attendance_summary">Monthly Staff Attendance Audit</option>
+                <option value="increment_report">Staff Annual Increment Projections</option>
+              </select>
+
+              <select id="reportMonthSelect" class="form-control form-control-sm" style="width: auto;"></select>
+              <select id="reportYearSelect" class="form-control form-control-sm" style="width: auto;"></select>
+              <select id="reportEmpSelect" class="form-control form-control-sm" style="width: auto;"></select>
+            </div>
+          </div>
+
+          <div class="card" id="reportResultsContainer">
+            <!-- Dynamic Report Data -->
+          </div>
+        </section>
+
+        <!-- 7. SETTINGS VIEW -->
+        <section id="view-settings" class="view-panel">
+          <div id="settingsContainer">
+            <!-- Dynamic Settings View with Tabs -->
+          </div>
+        </section>
+
+        <!-- 8. AUDIT LOGS VIEW -->
+        <section id="view-audit" class="view-panel">
+          <div class="card" id="auditLogsContainer">
+            <!-- Injected via JS -->
+          </div>
+        </section>
+
+        <!-- 9. ABOUT VIEW -->
+        <section id="view-about" class="view-panel">
+          <div class="card max-w-md mx-auto text-center py-4" style="margin: 0 auto;">
+            <div class="brand-icon-logo mx-auto mb-3" style="width: 64px; height: 64px; font-size: 2rem;">₹</div>
+            <h2 class="font-bold text-2xl text-primary">SALARY</h2>
+            <div class="badge badge-accent mb-2">v1.0 Professional Edition</div>
+            <p class="font-bold text-sm mb-4">Powered by SHIV COMPUTER</p>
+
+            <div class="text-left text-sm space-y-2 p-3 bg-neutral-light rounded mb-3">
+              <div>✓ <strong>Offline-First:</strong> 100% Client-side IndexedDB database.</div>
+              <div>✓ <strong>Multi-School Support:</strong> Complete data isolation per school.</div>
+              <div>✓ <strong>Deterministic Payroll:</strong> Fixed 30-day calculation, paid Sundays, 1st absent paid.</div>
+              <div>✓ <strong>Payslips & WhatsApp:</strong> A4 printer friendly + direct WhatsApp messaging.</div>
+              <div>✓ <strong>Security:</strong> SHA-256 encrypted access with auto-lock.</div>
+            </div>
+
+            <p class="text-xs text-muted">Developed for Educational Institutions, Colleges & Academies.<br />© 2026 SHIV COMPUTER. All Rights Reserved.</p>
+          </div>
+        </section>
+
+      </main>
+
+      <!-- Mobile Bottom Navigation Bar -->
+      <nav class="bottom-nav-bar">
+        <a href="javascript:void(0)" class="bottom-nav-item active" data-route="dashboard" onclick="App.navigateTo('dashboard')">
+          <i class="icon-layout"></i>
+          <span>Home</span>
+        </a>
+        <a href="javascript:void(0)" class="bottom-nav-item" data-route="employees" onclick="App.navigateTo('employees')">
+          <i class="icon-users"></i>
+          <span>Staff</span>
+        </a>
+        <a href="javascript:void(0)" class="bottom-nav-item" data-route="attendance" onclick="App.navigateTo('attendance')">
+          <i class="icon-calendar"></i>
+          <span>Attn</span>
+        </a>
+        <a href="javascript:void(0)" class="bottom-nav-item" data-route="salary" onclick="App.navigateTo('salary')">
+          <i class="icon-credit-card"></i>
+          <span>Salary</span>
+        </a>
+        <a href="javascript:void(0)" class="bottom-nav-item" data-route="reports" onclick="App.navigateTo('reports')">
+          <i class="icon-bar-chart-2"></i>
+          <span>Reports</span>
+        </a>
+      </nav>
+
+    </div>
+  </div>
+
+  <!-- Toast Notification Root Container -->
+  <div id="toastContainer"></div>
+
+  <!-- ================= MODALS ================= -->
+
+  <!-- School Modal (Add/Edit) -->
+  <div class="modal-backdrop" id="schoolModal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 id="schoolModalTitle" class="font-bold">Add School</h3>
+        <button class="icon-btn" onclick="Schools.closeModal()">&times;</button>
+      </div>
+      <form id="schoolForm">
+        <input type="hidden" name="schoolId" />
+        <input type="hidden" name="schoolLogoData" id="schoolLogoData" />
+        <div class="modal-body">
+          <div class="flex-align gap-3 mb-3">
+            <div class="school-logo-avatar" id="schoolLogoPreview">
+              <span class="avatar-initial">?</span>
+            </div>
+            <div>
+              <label class="btn btn-xs btn-outline cursor-pointer mb-1">
+                <i class="icon-upload"></i> Upload School Logo
+                <input type="file" id="schoolLogoInput" accept="image/*" style="display: none;" />
+              </label>
+              <div><button type="button" id="removeSchoolLogoBtn" class="text-xs text-danger" style="display: none; background: none; border: none; cursor: pointer;">Remove Logo</button></div>
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label>School / Institution Name *</label>
+              <input type="text" name="name" class="form-control" required placeholder="e.g. Delhi Public Academy" />
+            </div>
+            <div class="form-group">
+              <label>School Code / Reg. Number *</label>
+              <input type="text" name="code" class="form-control" required placeholder="e.g. DPA-101" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Full Campus Address *</label>
+            <textarea name="address" class="form-control" rows="2" required placeholder="Street, City, State, PIN"></textarea>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Contact Mobile *</label>
+              <input type="tel" name="mobile" class="form-control" required placeholder="10-digit number" />
+            </div>
+            <div class="form-group">
+              <label>Official Email</label>
+              <input type="email" name="email" class="form-control" placeholder="admin@school.edu" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Principal / Director Name *</label>
+            <input type="text" name="principal" class="form-control" required placeholder="Authorized Signatory Name" />
+          </div>
+
+          <div class="form-group">
+            <label>Internal Notes (Optional)</label>
+            <input type="text" name="notes" class="form-control" placeholder="Affiliation or branch info" />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="Schools.closeModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary"><i class="icon-save"></i> Save School</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Employee Modal (Add/Edit) -->
+  <div class="modal-backdrop" id="employeeModal">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-header">
+        <h3 id="empModalTitle" class="font-bold">Add New Employee</h3>
+        <button class="icon-btn" onclick="Employees.closeModal()">&times;</button>
+      </div>
+      <form id="employeeForm">
+        <input type="hidden" name="empId" />
+        <input type="hidden" name="empPhotoData" id="empPhotoData" />
+        <div class="modal-body">
+          <div class="flex-align gap-3 mb-3">
+            <div class="user-avatar-sm" id="empPhotoPreview" style="width: 50px; height: 50px;">
+              <span class="avatar-initial">?</span>
+            </div>
+            <div>
+              <label class="btn btn-xs btn-outline cursor-pointer mb-1">
+                <i class="icon-camera"></i> Upload Staff Photo
+                <input type="file" id="empPhotoInput" accept="image/*" style="display: none;" />
+              </label>
+              <div><button type="button" id="removeEmpPhotoBtn" class="text-xs text-danger" style="display: none; background: none; border: none; cursor: pointer;">Remove Photo</button></div>
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Employee ID *</label>
+              <input type="text" name="employeeId" class="form-control font-mono" required placeholder="e.g. EMP-001" />
+            </div>
+            <div class="form-group">
+              <label>Full Name *</label>
+              <input type="text" name="name" class="form-control" required placeholder="Teacher or staff full name" />
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Mobile Number (10 Digits) *</label>
+              <input type="tel" name="mobile" class="form-control" required maxlength="10" placeholder="e.g. 9876543210" />
+            </div>
+            <div class="form-group">
+              <label>Designation *</label>
+              <input type="text" name="designation" class="form-control" required placeholder="e.g. PGT Physics, Clerk, Peon" />
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Department</label>
+              <input type="text" name="department" class="form-control" placeholder="e.g. Science, Maths, Office" />
+            </div>
+            <div class="form-group">
+              <label>Joining Date *</label>
+              <input type="date" name="joiningDate" class="form-control" required />
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Monthly Basic Salary (₹) *</label>
+              <input type="number" name="monthlySalary" class="form-control font-bold" required min="0" placeholder="e.g. 25000" />
+            </div>
+            <div class="form-group">
+              <label>Employment Status *</label>
+              <select name="status" class="form-control">
+                <option value="Active">Active</option>
+                <option value="Inactive">Inactive</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Residential Address</label>
+            <input type="text" name="address" class="form-control" placeholder="Residential address" />
+          </div>
+
+          <div class="card mt-3 bg-neutral-light">
+            <h4 class="font-bold text-xs mb-2 text-muted text-uppercase">Banking Information (For Payslips)</h4>
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Bank Name</label>
+                <input type="text" name="bankName" class="form-control" placeholder="e.g. State Bank of India" />
+              </div>
+              <div class="form-group">
+                <label>Bank Account Number</label>
+                <input type="text" name="accountNumber" class="form-control font-mono" placeholder="Account Number" />
+              </div>
+              <div class="form-group">
+                <label>IFSC Code</label>
+                <input type="text" name="ifscCode" class="form-control font-mono" placeholder="SBIN0001234" />
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group mt-2">
+            <label>Remarks / Notes</label>
+            <input type="text" name="notes" class="form-control" placeholder="Qualifications, blood group, etc." />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="Employees.closeModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary"><i class="icon-save"></i> Save Employee</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Employee Profile Modal -->
+  <div class="modal-backdrop" id="employeeProfileModal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 class="font-bold">Staff Identity Card</h3>
+        <button class="icon-btn" onclick="Employees.closeProfileModal()">&times;</button>
+      </div>
+      <div class="modal-body" id="empProfileContent">
+        <!-- Injected via JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Mark As Paid Modal -->
+  <div class="modal-backdrop" id="paymentModal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 class="font-bold">Record Salary Disbursement</h3>
+        <button class="icon-btn" onclick="document.getElementById('paymentModal').classList.remove('active')">&times;</button>
+      </div>
+      <form id="paymentForm" onsubmit="event.preventDefault(); Salary.handleSavePayment();">
+        <input type="hidden" name="recordId" />
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Staff Member</label>
+            <input type="text" name="empName" class="form-control" readonly />
+          </div>
+          <div class="form-group">
+            <label>Net Amount Payable</label>
+            <input type="text" name="amount" class="form-control font-bold text-success text-lg" readonly />
+          </div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Payment Date *</label>
+              <input type="date" name="paymentDate" class="form-control" required />
+            </div>
+            <div class="form-group">
+              <label>Payment Mode *</label>
+              <select name="paymentMode" class="form-control">
+                <option value="Bank Transfer">Bank Transfer (NEFT/RTGS/IMPS)</option>
+                <option value="UPI / Online">UPI / PhonePe / GPay</option>
+                <option value="Cash">Cash In Hand</option>
+                <option value="Cheque">Bank Cheque</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Reference / Transaction Note</label>
+            <input type="text" name="remarks" class="form-control" placeholder="UTR Number, Cheque No, or comments" />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="document.getElementById('paymentModal').classList.remove('active')">Cancel</button>
+          <button type="submit" class="btn btn-success"><i class="icon-check"></i> Confirm Payment</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Adjust Bonus / Allowance / Deduction Modal -->
+  <div class="modal-backdrop" id="adjustSalaryModal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 class="font-bold">Adjust Individual Staff Payroll</h3>
+        <button class="icon-btn" onclick="document.getElementById('adjustSalaryModal').classList.remove('active')">&times;</button>
+      </div>
+      <form id="adjustSalaryForm" onsubmit="event.preventDefault(); Salary.handleSaveAdjustment();">
+        <input type="hidden" name="recordId" />
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Staff Member</label>
+            <input type="text" name="empName" class="form-control" readonly />
+          </div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Special Bonus / Incentive (₹)</label>
+              <input type="number" name="bonus" class="form-control text-success font-bold" min="0" />
+            </div>
+            <div class="form-group">
+              <label>Additional Allowance (₹)</label>
+              <input type="number" name="allowance" class="form-control text-success font-bold" min="0" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Other Deduction / Salary Advance Recovery (₹)</label>
+            <input type="number" name="otherDeduction" class="form-control text-danger font-bold" min="0" />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="document.getElementById('adjustSalaryModal').classList.remove('active')">Cancel</button>
+          <button type="submit" class="btn btn-primary"><i class="icon-save"></i> Save Adjustment</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Salary Formula Breakdown Modal -->
+  <div class="modal-backdrop" id="salaryFormulaModal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 class="font-bold">Deterministic Formula Breakdown</h3>
+        <button class="icon-btn" onclick="document.getElementById('salaryFormulaModal').classList.remove('active')">&times;</button>
+      </div>
+      <div class="modal-body" id="salaryFormulaContent">
+        <!-- Injected via JS -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="document.getElementById('salaryFormulaModal').classList.remove('active')">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Professional Payslip Modal -->
+  <div class="modal-backdrop" id="payslipModal">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-header">
+        <h3 class="font-bold">Official Salary Payslip</h3>
+        <div class="flex-align gap-2">
+          <button class="btn btn-sm btn-success" onclick="Payslip.shareWhatsApp()"><i class="icon-send"></i> WhatsApp</button>
+          <button class="btn btn-sm btn-outline" onclick="Payslip.printPayslip()"><i class="icon-printer"></i> Print</button>
+          <button class="icon-btn" onclick="Payslip.closeModal()">&times;</button>
+        </div>
+      </div>
+      <div class="modal-body" id="payslipSheetContainer">
+        <!-- Printable Payslip HTML injected here -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Password Prompt Modal -->
+  <div class="modal-backdrop" id="authModal">
+    <div class="modal-dialog max-w-md">
+      <div class="modal-header">
+        <h3 class="font-bold text-danger"><i class="icon-lock"></i> Security Verification</h3>
+        <button class="icon-btn" onclick="Auth.cancelPrompt()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p id="authPromptMessage" class="text-sm mb-3">Please confirm your application password to proceed with this sensitive action.</p>
+        <div class="form-group">
+          <input type="password" id="authPromptInput" class="form-control text-center text-lg font-bold" placeholder="Enter password" />
+        </div>
+        <div id="authPromptError" class="text-xs text-danger font-semibold"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="Auth.cancelPrompt()">Cancel</button>
+        <button type="button" class="btn btn-primary" onclick="Auth.submitPrompt()"><i class="icon-check"></i> Authorize</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Restore Confirmation Modal -->
+  <div class="modal-backdrop" id="restoreConfirmationModal">
+    <div class="modal-dialog max-w-md">
+      <div class="modal-header">
+        <h3 class="font-bold"><i class="icon-upload-cloud"></i> Restore Database</h3>
+        <button class="icon-btn" onclick="document.getElementById('restoreConfirmationModal').classList.remove('active')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div id="restoreSummaryInfo"></div>
+      </div>
+      <div class="modal-footer flex-between">
+        <button type="button" class="btn btn-secondary" onclick="document.getElementById('restoreConfirmationModal').classList.remove('active')">Cancel</button>
+        <div class="btn-group">
+          <button type="button" id="btnRestoreMerge" class="btn btn-outline"><i class="icon-copy"></i> Merge Data</button>
+          <button type="button" id="btnRestoreReplace" class="btn btn-danger"><i class="icon-refresh-cw"></i> Replace All</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- First Launch Welcome Modal -->
+  <div class="modal-backdrop" id="firstLaunchModal">
+    <div class="modal-dialog max-w-md text-center">
+      <div class="modal-body py-4">
+        <div class="brand-icon-logo mx-auto mb-3" style="width: 60px; height: 60px; font-size: 1.8rem;">₹</div>
+        <h2 class="font-bold text-xl text-primary">Welcome to SALARY</h2>
+        <p class="text-xs text-muted mb-4 font-semibold">POWERED BY SHIV COMPUTER</p>
+        
+        <p class="text-sm mb-4">
+          Would you like to initialize with <strong>Delhi Public Academy Demo Data</strong> (1 School, 5 Teachers, Sample Attendance & Generated Payroll) to explore all features instantly?
+        </p>
+
+        <div class="flex-column gap-2" style="display: flex; flex-direction: column; gap: 0.5rem;">
+          <button class="btn btn-primary" onclick="App.loadDemoData()">
+            <i class="icon-play"></i> Yes, Load Demo Data
+          </button>
+          <button class="btn btn-secondary" onclick="App.startEmpty()">
+            <i class="icon-plus"></i> No, Start with Empty School
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript Modules in Order -->
+  <script src="js/utils.js"></script>
+  <script src="js/db.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/audit.js"></script>
+  <script src="js/schools.js"></script>
+  <script src="js/employees.js"></script>
+  <script src="js/attendance.js"></script>
+  <script src="js/settings.js"></script>
+  <script src="js/salary.js"></script>
+  <script src="js/payslip.js"></script>
+  <script src="js/reports.js"></script>
+  <script src="js/backup.js"></script>
+  <script src="js/app.js"></script>
+
+</body>
+</html>

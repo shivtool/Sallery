@@ -1,0 +1,6 @@
+{
+  "name": "SALARY",
+  "description": "Professional Salary & Attendance Management System Powered by SHIV COMPUTER",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

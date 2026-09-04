@@ -1,0 +1,120 @@
+/* print.css - Professional A4 Print Styling for SALARY Powered by SHIV COMPUTER */
+
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 10mm 12mm;
+  }
+
+  /* Reset layout and hide screen Chrome */
+  body, html {
+    background: #ffffff !important;
+    color: #000000 !important;
+    font-size: 11pt !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .sidebar,
+  .top-header,
+  .bottom-nav-bar,
+  .sidebar-backdrop,
+  #toastContainer,
+  #appLockScreen,
+  .btn,
+  .btn-group,
+  .modal-header,
+  .modal-footer,
+  .modal-actions,
+  .tabs-nav,
+  .header-search-bar,
+  .empty-state,
+  .view-panel:not(.active),
+  .mobile-cards-view {
+    display: none !important;
+  }
+
+  .main-wrapper {
+    margin-left: 0 !important;
+    padding: 0 !important;
+  }
+
+  .content-viewport {
+    padding: 0 !important;
+    max-width: 100% !important;
+  }
+
+  /* Payslip Sheet in Modal Mode */
+  .modal-backdrop.active {
+    position: static !important;
+    background: transparent !important;
+    padding: 0 !important;
+    display: block !important;
+  }
+
+  .modal-dialog {
+    border: none !important;
+    box-shadow: none !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    margin: 0 !important;
+  }
+
+  .modal-body {
+    padding: 0 !important;
+    overflow: visible !important;
+  }
+
+  .payslip-sheet {
+    border: 1.5px solid #000000 !important;
+    padding: 18mm 15mm !important;
+    margin: 0 auto !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    page-break-after: avoid;
+  }
+
+  .payslip-header,
+  .payslip-employee-bar,
+  .payslip-signatures,
+  .payslip-footer {
+    border-color: #333333 !important;
+  }
+
+  .payslip-subtable td,
+  .payslip-table-grid {
+    border-color: #333333 !important;
+  }
+
+  .payslip-badge-title {
+    background-color: #000000 !important;
+    color: #ffffff !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .payslip-net-box {
+    background-color: #f3f4f6 !important;
+    border: 1.5px solid #000000 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .badge {
+    border: 1px solid #000000 !important;
+    background: transparent !important;
+    color: #000000 !important;
+  }
+
+  .data-table th, .data-table td {
+    border: 1px solid #999999 !important;
+    padding: 4pt 6pt !important;
+    font-size: 9pt !important;
+  }
+
+  .data-table th {
+    background-color: #f3f4f6 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
